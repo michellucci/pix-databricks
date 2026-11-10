@@ -1,0 +1,70 @@
+name: Coletar Pix por município
+
+on:
+  workflow_dispatch:
+    inputs:
+      competencia:
+        description: "Mês de referência no formato AAAAMM"
+        required: true
+        default: "202609"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  coletar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Baixar e validar o JSON do Banco Central
+        env:
+          COMPETENCIA: ${{ inputs.competencia }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+          from urllib.parse import quote
+          from urllib.request import urlopen
+
+          mes = os.environ["COMPETENCIA"]
+          if not re.fullmatch(r"[0-9]{4}(0[1-9]|1[0-2])", mes):
+              raise SystemExit("Informe a competência no formato AAAAMM.")
+
+          endpoint = (
+              "https://olinda.bcb.gov.br/olinda/servico/Pix_DadosAbertos/"
+              "versao/v1/odata/TransacoesPixPorMunicipio(DataBase=@DataBase)"
+          )
+          filtro = quote(f"AnoMes eq {mes}", safe="")
+          url = f"{endpoint}?@DataBase=%27{mes}%27&$format=json&$filter={filtro}"
+
+          with urlopen(url, timeout=120) as resposta:
+              conteudo = resposta.read()
+
+          dados = json.loads(conteudo)
+          registros = dados.get("value")
+          if not isinstance(registros, list) or not registros:
+              raise SystemExit(f"A API não retornou registros para {mes}.")
+          if dados.get("@odata.nextLink"):
+              raise SystemExit("A API indicou outra página. A coleta está incompleta.")
+
+          meses = {str(registro.get("AnoMes")) for registro in registros}
+          if meses != {mes}:
+              raise SystemExit(f"Esperava {mes}. Competências recebidas: {sorted(meses)}")
+
+          arquivo = Path("saida") / f"pix_{mes}_filtrado.json"
+          arquivo.parent.mkdir(exist_ok=True)
+          arquivo.write_bytes(conteudo)
+          print(f"Competência {mes} | Registros: {len(registros)} | Arquivo: {arquivo}")
+          PY
+
+      - name: Salvar JSON como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: pix-${{ inputs.competencia }}
+          path: saida/pix_${{ inputs.competencia }}_filtrado.json
+          if-no-files-found: error
+          retention-days: 7
