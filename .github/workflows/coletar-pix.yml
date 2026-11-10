@@ -68,3 +68,28 @@ jobs:
           path: saida/pix_${{ inputs.competencia }}_filtrado.json
           if-no-files-found: error
           retention-days: 7
+
+      - name: Enviar JSON ao Databricks
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          COMPETENCIA: ${{ inputs.competencia }}
+        run: |
+          set -euo pipefail
+
+          : "${DATABRICKS_HOST:?Secret DATABRICKS_HOST ausente}"
+          : "${DATABRICKS_TOKEN:?Secret DATABRICKS_TOKEN ausente}"
+
+          arquivo="saida/pix_${COMPETENCIA}_filtrado.json"
+          destino="/Volumes/pix_workspace/raw/pix_raw/pix_${COMPETENCIA}_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json"
+
+          curl --fail-with-body --silent --show-error \
+            --connect-timeout 30 \
+            --max-time 120 \
+            --request PUT \
+            --header "Authorization: Bearer ${DATABRICKS_TOKEN}" \
+            --header "Content-Type: application/octet-stream" \
+            --data-binary "@${arquivo}" \
+            "${DATABRICKS_HOST%/}/api/2.0/fs/files${destino}?overwrite=false"
+
+          echo "Arquivo enviado para ${destino}"
