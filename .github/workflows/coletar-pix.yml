@@ -1,95 +1,124 @@
 name: Coletar Pix por município
 
 on:
+  schedule:
+    - cron: "0 4 * * *"
+
   workflow_dispatch:
     inputs:
       competencia:
-        description: "Mês de referência no formato AAAAMM"
-        required: true
-        default: "202609"
+        description: "AAAAMM ou vazio para mês corrente e anterior"
+        required: false
+        default: ""
         type: string
 
 permissions:
   contents: read
 
+concurrency:
+  group: coleta-pix
+  cancel-in-progress: false
+
 jobs:
   coletar:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     steps:
-      - name: Baixar e validar o JSON do Banco Central
+      - name: Coletar e enviar ao Databricks
         env:
           COMPETENCIA: ${{ inputs.competencia }}
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
           python3 - <<'PY'
           import json
           import os
           import re
+          import time
+          from datetime import datetime, timedelta
           from pathlib import Path
+          from urllib.error import HTTPError, URLError
           from urllib.parse import quote
-          from urllib.request import urlopen
+          from urllib.request import Request, urlopen
+          from zoneinfo import ZoneInfo
 
-          mes = os.environ["COMPETENCIA"]
-          if not re.fullmatch(r"[0-9]{4}(0[1-9]|1[0-2])", mes):
-              raise SystemExit("Informe a competência no formato AAAAMM.")
+          def executar(requisicao):
+              for tentativa in range(3):
+                  try:
+                      with urlopen(requisicao, timeout=120) as resposta:
+                          return resposta.read()
+                  except HTTPError as erro:
+                      if erro.code not in (429, 500, 502, 503, 504):
+                          raise
+                      if tentativa == 2:
+                          raise
+                  except (URLError, TimeoutError):
+                      if tentativa == 2:
+                          raise
+                  time.sleep(10 * (tentativa + 1))
+
+          competencia = os.environ.get("COMPETENCIA", "").strip()
+          if competencia:
+              if not re.fullmatch(r"[0-9]{4}(0[1-9]|1[0-2])", competencia):
+                  raise SystemExit("Competência inválida. Use AAAAMM.")
+              meses = [competencia]
+          else:
+              hoje = datetime.now(ZoneInfo("America/Sao_Paulo")).date()
+              mes_anterior = hoje.replace(day=1) - timedelta(days=1)
+              meses = [mes_anterior.strftime("%Y%m"), hoje.strftime("%Y%m")]
+
+          host = os.environ["DATABRICKS_HOST"].strip().rstrip("/")
+          token = os.environ["DATABRICKS_TOKEN"].strip()
+          if not host.startswith("https://") or not token:
+              raise SystemExit("Confira os Secrets do Databricks.")
 
           endpoint = (
               "https://olinda.bcb.gov.br/olinda/servico/Pix_DadosAbertos/"
               "versao/v1/odata/TransacoesPixPorMunicipio(DataBase=@DataBase)"
           )
-          filtro = quote(f"AnoMes eq {mes}", safe="")
-          url = f"{endpoint}?@DataBase=%27{mes}%27&$format=json&$filter={filtro}"
+          pasta = Path("saida")
+          pasta.mkdir(exist_ok=True)
 
-          with urlopen(url, timeout=120) as resposta:
-              conteudo = resposta.read()
+          for mes in meses:
+              filtro = quote(f"AnoMes eq {mes}", safe="")
+              url = f"{endpoint}?@DataBase=%27{mes}%27&$format=json&$filter={filtro}"
 
-          dados = json.loads(conteudo)
-          registros = dados.get("value")
-          if not isinstance(registros, list) or not registros:
-              raise SystemExit(f"A API não retornou registros para {mes}.")
-          if dados.get("@odata.nextLink"):
-              raise SystemExit("A API indicou outra página. A coleta está incompleta.")
+              conteudo = executar(url)
+              dados = json.loads(conteudo)
+              registros = dados.get("value")
 
-          meses = {str(registro.get("AnoMes")) for registro in registros}
-          if meses != {mes}:
-              raise SystemExit(f"Esperava {mes}. Competências recebidas: {sorted(meses)}")
+              if not isinstance(registros, list) or not registros:
+                  raise SystemExit(f"Sem registros para {mes}.")
+              if dados.get("@odata.nextLink"):
+                  raise SystemExit(f"Resposta paginada para {mes}.")
+              if {str(r.get("AnoMes")) for r in registros} != {mes}:
+                  raise SystemExit(f"Competências inesperadas na resposta de {mes}.")
 
-          arquivo = Path("saida") / f"pix_{mes}_filtrado.json"
-          arquivo.parent.mkdir(exist_ok=True)
-          arquivo.write_bytes(conteudo)
-          print(f"Competência {mes} | Registros: {len(registros)} | Arquivo: {arquivo}")
+              nome = (
+                  f"pix_{mes}_{os.environ['GITHUB_RUN_ID']}_"
+                  f"{os.environ['GITHUB_RUN_ATTEMPT']}.json"
+              )
+              (pasta / nome).write_bytes(conteudo)
+
+              destino = f"/Volumes/workspace/raw/pix_raw/{nome}"
+              requisicao = Request(
+                  f"{host}/api/2.0/fs/files{destino}?overwrite=true",
+                  data=conteudo,
+                  method="PUT",
+                  headers={
+                      "Authorization": f"Bearer {token}",
+                      "Content-Type": "application/octet-stream",
+                  },
+              )
+              executar(requisicao)
+              print(f"{mes}: {len(registros)} registros enviados para {destino}")
           PY
 
-      - name: Salvar JSON como artefato
-        uses: actions/upload-artifact@v4
+      - name: Salvar cópia como artefato
+        uses: actions/upload-artifact@v6
         with:
-          name: pix-${{ inputs.competencia }}
-          path: saida/pix_${{ inputs.competencia }}_filtrado.json
+          name: pix-${{ github.run_id }}-${{ github.run_attempt }}
+          path: saida/*.json
           if-no-files-found: error
           retention-days: 7
-
-      - name: Enviar JSON ao Databricks
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-          COMPETENCIA: ${{ inputs.competencia }}
-        run: |
-          set -euo pipefail
-
-          : "${DATABRICKS_HOST:?Secret DATABRICKS_HOST ausente}"
-          : "${DATABRICKS_TOKEN:?Secret DATABRICKS_TOKEN ausente}"
-
-          arquivo="saida/pix_${COMPETENCIA}_filtrado.json"
-          destino="/Volumes/workspace/raw/pix_raw/pix_${COMPETENCIA}_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json"
-
-          curl --fail-with-body --silent --show-error \
-            --connect-timeout 30 \
-            --max-time 120 \
-            --request PUT \
-            --header "Authorization: Bearer ${DATABRICKS_TOKEN}" \
-            --header "Content-Type: application/octet-stream" \
-            --data-binary "@${arquivo}" \
-            "${DATABRICKS_HOST%/}/api/2.0/fs/files${destino}?overwrite=false"
-
-          echo "Arquivo enviado para ${destino}"
