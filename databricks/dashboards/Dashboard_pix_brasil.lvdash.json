@@ -1,0 +1,900 @@
+{
+  "datasets": [
+    {
+      "name": "1a9417b9",
+      "displayName": "pix_estado_mes",
+      "config": {
+        "version": "1.1",
+        "source": "workspace.gold.pix_estado_mes",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          },
+          {
+            "name": "Ano Mês",
+            "expr": "LEFT(REPLACE(CAST(competencia AS STRING), '-', ''), 6)",
+            "displayName": "Ano Mês"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "e04b37dc",
+      "displayName": "Pix Brasil",
+      "layout": [
+        {
+          "widget": {
+            "name": "08bf1423",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "sum(qtd_pix_enviados)",
+                      "expression": "SUM(`qtd_pix_enviados`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showDescription": false,
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block\"><span style=\"font-size:24px\">Qtd Total Enviado</span></span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Unique Customers",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(qtd_pix_enviados)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "119312ff",
+            "imageSpec": {
+              "useSeparateLightDarkImages": false,
+              "image": {
+                "source": {
+                  "url": "https://dbc-bae9b408-406b.cloud.databricks.com/ajax-api/2.0/workspace/export?path=/Users/michellucci_ti%40hotmail.com/Sample%20Dashboards/Pix%20no%20Brasil%20com%20fundo%20transparente.png&direct_download=true&format=AUTO&o=7474645604652841"
+                },
+                "sourceDark": {
+                  "url": "https://dbc-bae9b408-406b.cloud.databricks.com/ajax-api/2.0/workspace/export?path=/Users/michellucci_ti%40hotmail.com/Sample%20Dashboards/Pix%20no%20Brasil%20com%20fundo%20transparente.png&direct_download=true&format=AUTO&o=7474645604652841"
+                }
+              },
+              "frame": {},
+              "style": {
+                "sizeMode": "SIZE_MODE_FIT",
+                "horizontalAlign": "HORIZONTAL_ALIGN_LEFT"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 8,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "competencia",
+            "queries": [
+              {
+                "name": "dashboards/01f1dded85381d74bc179b270893ee51/datasets/01f1ddf804641c5580de7064e9aad0ce_Ano Mês",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "Ano Mês",
+                      "expression": "`Ano Mês`"
+                    },
+                    {
+                      "name": "Ano Mês_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"font-weight: 700;font-size: 18px;\">Competencia</span>",
+                  "fields": []
+                }
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "Ano Mês",
+                    "queryName": "dashboards/01f1dded85381d74bc179b270893ee51/datasets/01f1ddf804641c5580de7064e9aad0ce_Ano Mês"
+                  }
+                ]
+              }
+            },
+            "filterSources": {
+              "mode": "EXCLUDE",
+              "global": {
+                "all": true
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "5af863b7",
+            "queries": [
+              {
+                "name": "dashboards/01f1dded85381d74bc179b270893ee51/datasets/01f1ddf804641c5580de7064e9aad0ce_estado",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "estado",
+                      "expression": "`estado`"
+                    },
+                    {
+                      "name": "estado_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"font-weight: 700;font-size: 18px;\">Estado</span>",
+                  "fields": []
+                }
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "estado",
+                    "queryName": "dashboards/01f1dded85381d74bc179b270893ee51/datasets/01f1ddf804641c5580de7064e9aad0ce_estado"
+                  }
+                ]
+              }
+            },
+            "filterSources": {
+              "mode": "EXCLUDE",
+              "global": {
+                "all": true
+              }
+            }
+          },
+          "position": {
+            "x": 10,
+            "y": 0,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "7e1f9a36",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "sum(valor_pix_enviados)",
+                      "expression": "SUM(`valor_pix_enviados`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showDescription": false,
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block\"><span style=\"font-size: 18px;\">Valor Total Enviado</span></span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Unique Customers",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(valor_pix_enviados)",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "BRL",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "84d14b09",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "sum(valor_pix_enviados_pf)",
+                      "expression": "SUM(`valor_pix_enviados_pf`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showDescription": false,
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block\"><span style=\"font-size: 18px;\">Valor Total Enviado PF</span></span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Unique Customers",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(valor_pix_enviados_pf)",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "BRL",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "b18bf0ba",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "sum(valor_pix_enviados_pj)",
+                      "expression": "SUM(`valor_pix_enviados_pj`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showDescription": false,
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block\"><span style=\"font-size: 18px;\">Valor Total Enviado PJ</span></span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Unique Customers",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(valor_pix_enviados_pj)",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "BRL",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "a6cdb536",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "sum(ticket_medio_pix_pf)",
+                      "expression": "SUM(`ticket_medio_pix_pf`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showDescription": false,
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block\"><span style=\"font-size:24px\">Valor Médio PF</span></span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Unique Customers",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(ticket_medio_pix_pf)",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "BRL",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "d2d22020",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "sum(ticket_medio_pix_pj)",
+                      "expression": "SUM(`ticket_medio_pix_pj`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showDescription": false,
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"text-align:center;display:block\"><span style=\"font-size:24px\">Valor Médio PJ</span></span>",
+                  "fields": []
+                },
+                "description": {
+                  "value": "Unique Customers",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(ticket_medio_pix_pj)",
+                  "format": {
+                    "type": "number-currency",
+                    "currencyCode": "BRL",
+                    "abbreviation": "compact",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 10,
+            "y": 2,
+            "width": 2,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "valor-enviado-por-estado",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "sum(valor_pix_enviados)",
+                      "expression": "SUM(`valor_pix_enviados`)"
+                    },
+                    {
+                      "name": "estado",
+                      "expression": "`estado`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": {
+                  "value": "<span style=\"font-weight: 700;font-size: 24px;\">Valor Enviado por Estado</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "sum(valor_pix_enviados)",
+                  "axis": {
+                    "hideGrid": true,
+                    "hideLabels": false
+                  },
+                  "displayName": "Valor Total Enviado",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "estado",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "evolucao-mensal",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "sum(valor_pix_enviados)",
+                      "expression": "SUM(`valor_pix_enviados`)"
+                    },
+                    {
+                      "name": "Ano Mês",
+                      "expression": "`Ano Mês`"
+                    },
+                    {
+                      "name": "sum(qtd_pix_enviados)",
+                      "expression": "SUM(`qtd_pix_enviados`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "<span style=\"font-weight: 700;font-size: 24px;\">Evolução Mensal</span>",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "mark": {
+                "lineShape": "linear"
+              },
+              "widgetType": "area",
+              "encodings": {
+                "x": {
+                  "fieldName": "Ano Mês",
+                  "axis": {
+                    "labelAngle": 45
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(qtd_pix_enviados)",
+                  "displayName": "Qtd enviada",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": false
+                },
+                "extra": [
+                  {
+                    "fieldName": "sum(valor_pix_enviados)",
+                    "displayName": "Valor enviado"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "03b38f96",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "1a9417b9",
+                  "fields": [
+                    {
+                      "name": "estado",
+                      "expression": "`estado`"
+                    },
+                    {
+                      "name": "sum(qtd_pix_enviados)",
+                      "expression": "SUM(`qtd_pix_enviados`)"
+                    },
+                    {
+                      "name": "sum(valor_pix_enviados)",
+                      "expression": "SUM(`valor_pix_enviados`)"
+                    },
+                    {
+                      "name": "avg(ticket_medio_pix)",
+                      "expression": "AVG(`ticket_medio_pix`)"
+                    },
+                    {
+                      "name": "sum(qtd_pix_enviados_pf)",
+                      "expression": "SUM(`qtd_pix_enviados_pf`)"
+                    },
+                    {
+                      "name": "sum(valor_pix_enviados_pf)",
+                      "expression": "SUM(`valor_pix_enviados_pf`)"
+                    },
+                    {
+                      "name": "avg(ticket_medio_pix_pf)",
+                      "expression": "AVG(`ticket_medio_pix_pf`)"
+                    },
+                    {
+                      "name": "sum(qtd_pix_enviados_pj)",
+                      "expression": "SUM(`qtd_pix_enviados_pj`)"
+                    },
+                    {
+                      "name": "sum(valor_pix_enviados_pj)",
+                      "expression": "SUM(`valor_pix_enviados_pj`)"
+                    },
+                    {
+                      "name": "avg(ticket_medio_pix_pj)",
+                      "expression": "AVG(`ticket_medio_pix_pj`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "`estado`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "estado",
+                    "displayName": "Estado"
+                  },
+                  {
+                    "fieldName": "sum(qtd_pix_enviados)",
+                    "format": {
+                      "type": "number-plain",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 0
+                      },
+                      "hideGroupSeparator": true
+                    },
+                    "displayName": "Qtd Transações"
+                  },
+                  {
+                    "fieldName": "sum(valor_pix_enviados)",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "BRL",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      },
+                      "significantFigures": {
+                        "type": "all"
+                      },
+                      "hideGroupSeparator": false
+                    },
+                    "displayName": "Valor Transações"
+                  },
+                  {
+                    "fieldName": "avg(ticket_medio_pix)",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "BRL",
+                      "abbreviation": "none",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      },
+                      "hideGroupSeparator": false
+                    },
+                    "displayName": "Ticket Geral"
+                  },
+                  {
+                    "fieldName": "sum(qtd_pix_enviados_pf)",
+                    "format": {
+                      "type": "number-plain",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 0
+                      },
+                      "hideGroupSeparator": false
+                    },
+                    "displayName": "Qtd Transações PF"
+                  },
+                  {
+                    "fieldName": "sum(valor_pix_enviados_pf)",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "BRL",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      },
+                      "significantFigures": {
+                        "type": "all"
+                      },
+                      "hideGroupSeparator": false
+                    },
+                    "displayName": "Valor Transações PF"
+                  },
+                  {
+                    "fieldName": "avg(ticket_medio_pix_pf)",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "BRL",
+                      "abbreviation": "none",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      },
+                      "hideGroupSeparator": false
+                    },
+                    "displayName": "Ticket PF"
+                  },
+                  {
+                    "fieldName": "sum(qtd_pix_enviados_pj)",
+                    "format": {
+                      "type": "number-plain",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 0
+                      },
+                      "hideGroupSeparator": true
+                    },
+                    "displayName": "Qtd Transações PJ"
+                  },
+                  {
+                    "fieldName": "sum(valor_pix_enviados_pj)",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "BRL",
+                      "abbreviation": "compact",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      },
+                      "hideGroupSeparator": true
+                    },
+                    "displayName": "Valor Transações PJ"
+                  },
+                  {
+                    "fieldName": "avg(ticket_medio_pix_pj)",
+                    "format": {
+                      "type": "number-currency",
+                      "currencyCode": "USD",
+                      "abbreviation": "none",
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 2
+                      },
+                      "hideGroupSeparator": false
+                    },
+                    "displayName": "Ticket PJ"
+                  }
+                ],
+                "rowOrder": [
+                  {
+                    "by": "column",
+                    "field": {
+                      "index": 0
+                    }
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "genieSpace": {
+      "isEnabled": true,
+      "enablementMode": "ENABLED"
+    },
+    "applyModeEnabled": false
+  }
+}
