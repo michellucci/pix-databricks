@@ -1,0 +1,69 @@
+{
+  "email_notifications": {
+    "no_alert_for_skipped_runs": false
+  },
+  "format": "MULTI_TASK",
+  "max_concurrent_runs": 1,
+  "name": "job_pix_raw_to_bronze",
+  "performance_target": "PERFORMANCE_OPTIMIZED",
+  "queue": {
+    "enabled": true
+  },
+  "tasks": [
+    {
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/SEU-EMAIL/pix/bronze/01_raw_para_bronze",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "task_pix_raw_to_bronze",
+      "timeout_seconds": 0,
+      "webhook_notifications": {}
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "task_pix_raw_to_bronze"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/SEU-EMAIL/pix/silver/01_bronze_to_silver",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "task_pix_bronze_to_silver",
+      "timeout_seconds": 0,
+      "webhook_notifications": {}
+    },
+    {
+      "depends_on": [
+        {
+          "task_key": "task_pix_bronze_to_silver"
+        }
+      ],
+      "disabled": false,
+      "email_notifications": {},
+      "notebook_task": {
+        "notebook_path": "/Workspace/Users/SEU-EMAIL/pix/gold/01_silver_to_gold",
+        "source": "WORKSPACE"
+      },
+      "run_if": "ALL_SUCCESS",
+      "task_key": "task_pix_silver_to_gold",
+      "timeout_seconds": 0
+    }
+  ],
+  "timeout_seconds": 0,
+  "trigger": {
+    "file_arrival": {
+      "min_time_between_triggers_seconds": 600,
+      "url": "/Volumes/workspace/raw/pix_raw/",
+      "wait_after_last_change_seconds": 180
+    },
+    "pause_status": "UNPAUSED"
+  },
+  "webhook_notifications": {}
+}
